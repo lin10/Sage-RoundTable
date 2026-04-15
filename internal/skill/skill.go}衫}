@@ -1,0 +1,24 @@
+package skill
+
+// Skill 定义了供 Agent 调用的工具技能接口
+type Skill interface {
+	// ID 工具唯一标识
+	ID() string
+	
+	// Name 工具名称
+	Name() string
+	
+	// Execute 执行工具逻辑，返回结果
+	Execute(args map[string]interface{}) (string, error)
+}
+
+// SkillProfile 技能配置文件（从 .md 解析）
+type SkillProfile struct {
+	ID          string      `mapstructure:"id" yaml:"id" json:"id"`
+	Name        string      `mapstructure:"name" yaml:"name" json:"name"`
+	Description string      `mapstructure:"description" yaml:"description" json:"description"`
+	// 参数 schema，用于提供给大模型 Function Calling
+	Parameters  interface{} `mapstructure:"parameters" yaml:"parameters" json:"parameters"`
+	// Markdown 正文中的详细 Prompt 和执行指导
+	Instruction string      `json:"instruction,omitempty"`
+}

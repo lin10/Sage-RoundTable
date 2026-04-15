@@ -1,4 +1,4 @@
-# 🏛️ Pantheon Council（赛博军机处）
+# 🏛️ Sage-RoundTable（赛博军机处）
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Go Version](https://img.shields.io/badge/Go-1.23+-00ADD8?logo=go)](https://go.dev/)
@@ -8,7 +8,7 @@
 
 ## ✨ 项目简介
 
-**Pantheon Council** 是一个开源的多智能体（Multi-Agent）决策辅助工具。
+**Sage-RoundTable** 是一个开源的多智能体（Multi-Agent）决策辅助工具。
 
 你是否曾在买房、跳槽、创业或选专业时感到迷茫？个人的视角总有盲区。本项目利用大语言模型（LLM）扮演孔子、诸葛亮、亚当·斯密、马基雅维利等东西方先贤，通过 **“反向提问收集背景 → 圆桌辩论 → 生成决议书”** 的流程，为你提供跨越时空与学科的深度策略分析。
 
@@ -41,8 +41,8 @@
 本项目拒绝框架臃肿，基于 Go 标准库与极简依赖构建：
 
 - **语言**：Go 1.23+（利用原生并发与 `net/http`）
-- **LLM 接入**：`go-openai`（兼容 OpenAI / DeepSeek / Ollama）
-- **配置**：`Viper` + YAML
+- **LLM 接入**：多模型路由引擎（支持 OpenAI / Qwen / Wenxin / ChatGLM / DeepSeek / Ollama）
+- **配置**：YAML + 环境变量
 - **日志**：`slog`（标准库）
 - **前端**：Next.js（React）或 Streamlit
 
@@ -50,7 +50,7 @@
 
 ### 前置条件
 - Go 1.23+
-- 可访问的 LLM API（OpenAI / DeepSeek）或本地运行的 Ollama
+- 可访问的 LLM API（推荐阿里云通义千问、智谱AI等国内服务）或本地运行的 Ollama
 
 ### 步骤
 ```bash
@@ -58,11 +58,53 @@
 git clone https://github.com/yourname/pantheon-council.git
 cd pantheon-council
 
-# 2. 复制配置文件并填入 API Key
-cp config/config.example.yaml config/config.yaml
+# 2. 配置模型路由（支持国内外多个大模型）
+cp config/models.example.yaml config/models.yaml
+# 编辑 config/models.yaml，启用你需要的模型
 
-# 3. 运行后端服务
-go run cmd/server/main.go
+# 3. 设置 API Keys（任选其一）
+# 方式一：使用 .env 文件
+cp .env.example .env
+# 编辑 .env 填入你的 API Keys
 
-# 4. 访问前端 (新终端)
-cd web && npm install && npm run dev
+# 方式二：直接设置环境变量
+export QWEN_API_KEY="sk-your-key"
+
+# 4. 运行 CLI 测试版
+go run cmd/cli/main.go
+```
+
+### 💡 推荐配置（国内用户）
+
+```yaml
+# config/models.yaml
+default_model: "qwen-max"
+strategy: "priority"
+
+models:
+  # 主力模型 - 阿里云通义千问
+  - name: "qwen-max"
+    type: "qwen"
+    model: "qwen-max"
+    api_key: "${QWEN_API_KEY}"
+    enabled: true
+    priority: 1
+    
+  # 备用模型 - 智谱AI
+  - name: "glm-4"
+    type: "chatglm"
+    model: "glm-4"
+    api_key: "${ZHIPU_API_KEY}"
+    enabled: true
+    priority: 2
+    
+  # 本地保底 - Ollama (完全免费)
+  - name: "ollama-llama3"
+    type: "ollama"
+    model: "llama3"
+    base_url: "http://localhost:11434/v1"
+    enabled: true
+    priority: 3
+```
+
+更多配置详情请查看 [多模型路由系统使用指南](docs/MODEL_ROUTING.md)

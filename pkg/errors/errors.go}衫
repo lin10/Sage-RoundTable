@@ -1,0 +1,35 @@
+package errors
+
+import "fmt"
+
+// ErrorCode 错误码
+type ErrorCode string
+
+const (
+	ErrInvalidInput    ErrorCode = "INVALID_INPUT"
+	ErrLLMAPIError     ErrorCode = "LLM_API_ERROR"
+	ErrDatabaseError   ErrorCode = "DATABASE_ERROR"
+	ErrSessionNotFound ErrorCode = "SESSION_NOT_FOUND"
+	ErrRateLimit       ErrorCode = "RATE_LIMIT_EXCEEDED"
+	ErrConfigParse     ErrorCode = "CONFIG_PARSE_ERROR"
+)
+
+// AppError 应用内部错误结构
+type AppError struct {
+	Code    ErrorCode `json:"code"`
+	Message string    `json:"message"`
+	Details string    `json:"details,omitempty"`
+}
+
+func (e *AppError) Error() string {
+	return fmt.Sprintf("[%s] %s", e.Code, e.Message)
+}
+
+// NewAppError 创建一个新的应用错误
+func NewAppError(code ErrorCode, message string, details string) *AppError {
+	return &AppError{
+		Code:    code,
+		Message: message,
+		Details: details,
+	}
+}

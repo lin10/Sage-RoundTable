@@ -1,0 +1,148 @@
+# 模型路由配置示例
+# 复制此文件为 config.yaml 并填入你的 API Keys
+
+# 默认使用的模型名称（对应下方 models 中的 name）
+default_model: "qwen-max"
+
+# 路由策略: fixed(固定), priority(优先级), loadbalance(负载均衡), costoptimal(成本最优)
+strategy: "priority"
+
+# 是否启用自动降级（当首选模型失败时尝试其他模型）
+fallback: true
+
+# 最大重试次数
+max_retries: 3
+
+# 模型列表配置
+models:
+  # OpenAI GPT-4
+  - name: "gpt-4"
+    type: "openai"
+    model: "gpt-4-turbo"
+    api_key: "${OPENAI_API_KEY}"  # 使用环境变量
+    base_url: ""  # 留空使用官方 API
+    temperature: 0.7
+    max_tokens: 4096
+    priority: 2
+    cost_per_token: 0.00001
+    enabled: false  # 设为 true 启用
+
+  # OpenAI GPT-3.5
+  - name: "gpt-3.5"
+    type: "openai"
+    model: "gpt-3.5-turbo"
+    api_key: "${OPENAI_API_KEY}"
+    base_url: ""
+    temperature: 0.7
+    max_tokens: 4096
+    priority: 3
+    cost_per_token: 0.000002
+    enabled: false
+
+  # 阿里云通义千问 - Qwen Max
+  - name: "qwen-max"
+    type: "qwen"
+    model: "qwen-max"
+    api_key: "${QWEN_API_KEY}"
+    base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    temperature: 0.7
+    max_tokens: 2000
+    priority: 1
+    cost_per_token: 0.000008
+    enabled: true
+
+  # 阿里云通义千问 - Qwen Plus
+  - name: "qwen-plus"
+    type: "qwen"
+    model: "qwen-plus"
+    api_key: "${QWEN_API_KEY}"
+    base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    temperature: 0.7
+    max_tokens: 6000
+    priority: 4
+    cost_per_token: 0.000004
+    enabled: false
+
+  # 百度文心一言 - ERNIE Bot 4.0
+  - name: "wenxin-4"
+    type: "wenxin"
+    model: "ernie-bot-4"
+    api_key: "${WENXIN_API_KEY}"
+    secret_key: "${WENXIN_SECRET_KEY}"
+    temperature: 0.7
+    max_tokens: 2048
+    priority: 5
+    cost_per_token: 0.000012
+    enabled: false
+
+  # 百度文心一言 - ERNIE Bot
+  - name: "wenxin-standard"
+    type: "wenxin"
+    model: "ernie-bot"
+    api_key: "${WENXIN_API_KEY}"
+    secret_key: "${WENXIN_SECRET_KEY}"
+    temperature: 0.7
+    max_tokens: 2048
+    priority: 6
+    cost_per_token: 0.000008
+    enabled: false
+
+  # 智谱AI - GLM-4
+  - name: "glm-4"
+    type: "chatglm"
+    model: "glm-4"
+    api_key: "${ZHIPU_API_KEY}"
+    base_url: "https://open.bigmodel.cn/api/paas/v4"
+    temperature: 0.7
+    max_tokens: 4096
+    priority: 7
+    cost_per_token: 0.00001
+    enabled: false
+
+  # 智谱AI - GLM-3-Turbo
+  - name: "glm-3-turbo"
+    type: "chatglm"
+    model: "glm-3-turbo"
+    api_key: "${ZHIPU_API_KEY}"
+    base_url: "https://open.bigmodel.cn/api/paas/v4"
+    temperature: 0.7
+    max_tokens: 8192
+    priority: 8
+    cost_per_token: 0.000005
+    enabled: false
+
+  # DeepSeek
+  - name: "deepseek-chat"
+    type: "deepseek"
+    model: "deepseek-chat"
+    api_key: "${DEEPSEEK_API_KEY}"
+    base_url: "https://api.deepseek.com/v1"
+    temperature: 0.7
+    max_tokens: 4096
+    priority: 9
+    cost_per_token: 0.000002
+    enabled: false
+
+  # 本地 Ollama (完全免费)
+  - name: "ollama-llama3"
+    type: "ollama"
+    model: "llama3"
+    api_key: ""  # Ollama 不需要 API Key
+    base_url: "http://localhost:11434/v1"
+    temperature: 0.7
+    max_tokens: 4096
+    priority: 10
+    cost_per_token: 0
+    enabled: false
+
+  # 本地 Ollama - Qwen
+  - name: "ollama-qwen"
+    type: "ollama"
+    model: "qwen:7b"
+    api_key: ""
+    base_url: "http://localhost:11434/v1"
+    temperature: 0.7
+    max_tokens: 4096
+    priority: 11
+    cost_per_token: 0
+    enabled: false
