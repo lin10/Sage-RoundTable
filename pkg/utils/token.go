@@ -1,7 +1,5 @@
 package utils
 
-import "strings"
-
 // EstimateTokens 粗略估算文本的 Token 数量
 // 在没有引入复杂 BPE 分词器的情况下，一个简单经验法则是：
 // 英文单词约 0.75 个 token，中文字符大约 1~1.5 个 token。

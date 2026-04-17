@@ -10,14 +10,14 @@ import (
 type ModelType string
 
 const (
-	ModelTypeOpenAI      ModelType = "openai"
-	ModelTypeQwen        ModelType = "qwen"        // 阿里云通义千问
-	ModelTypeWenxin      ModelType = "wenxin"      // 百度文心一言
-	ModelTypeChatGLM     ModelType = "chatglm"     // 智谱AI ChatGLM
-	ModelTypeDeepSeek    ModelType = "deepseek"    // DeepSeek
-	ModelTypeOllama      ModelType = "ollama"      // 本地 Ollama
-	ModelTypeClaude      ModelType = "claude"      // Anthropic Claude
-	ModelTypeGemini      ModelType = "gemini"      // Google Gemini
+	ModelTypeOpenAI   ModelType = "openai"
+	ModelTypeQwen     ModelType = "qwen"     // 阿里云通义千问
+	ModelTypeWenxin   ModelType = "wenxin"   // 百度文心一言
+	ModelTypeChatGLM  ModelType = "chatglm"  // 智谱AI ChatGLM
+	ModelTypeDeepSeek ModelType = "deepseek" // DeepSeek
+	ModelTypeOllama   ModelType = "ollama"   // 本地 Ollama
+	ModelTypeClaude   ModelType = "claude"   // Anthropic Claude
+	ModelTypeGemini   ModelType = "gemini"   // Google Gemini
 )
 
 // RoutingStrategy 定义路由策略
@@ -32,18 +32,18 @@ const (
 
 // ModelConfig 单个模型的配置
 type ModelConfig struct {
-	Name         string      `yaml:"name" json:"name"`               // 模型名称标识
-	Type         ModelType   `yaml:"type" json:"type"`               // 模型类型
-	Model        string      `yaml:"model" json:"model"`             // 具体模型ID (如 gpt-4, qwen-max)
-	BaseURL      string      `yaml:"base_url" json:"base_url"`       // API Base URL
-	APIKey       string      `yaml:"api_key" json:"api_key"`         // API Key
-	SecretKey    string      `yaml:"secret_key" json:"secret_key"`   // 额外的密钥 (如文心一言需要)
-	Temperature  float64     `yaml:"temperature" json:"temperature"` // 默认温度
-	MaxTokens    int         `yaml:"max_tokens" json:"max_tokens"`   // 最大Token数
-	Priority     int         `yaml:"priority" json:"priority"`       // 优先级 (数字越小优先级越高)
-	CostPerToken float64     `yaml:"cost_per_token" json:"cost_per_token"` // 每Token成本 (用于成本优化策略)
-	Enabled      bool        `yaml:"enabled" json:"enabled"`         // 是否启用
-	Metadata     map[string]string `yaml:"metadata" json:"metadata"` // 额外元数据
+	Name         string            `yaml:"name" json:"name"`                     // 模型名称标识
+	Type         ModelType         `yaml:"type" json:"type"`                     // 模型类型
+	Model        string            `yaml:"model" json:"model"`                   // 具体模型ID (如 gpt-4, qwen-max)
+	BaseURL      string            `yaml:"base_url" json:"base_url"`             // API Base URL
+	APIKey       string            `yaml:"api_key" json:"api_key"`               // API Key
+	SecretKey    string            `yaml:"secret_key" json:"secret_key"`         // 额外的密钥 (如文心一言需要)
+	Temperature  float64           `yaml:"temperature" json:"temperature"`       // 默认温度
+	MaxTokens    int               `yaml:"max_tokens" json:"max_tokens"`         // 最大Token数
+	Priority     int               `yaml:"priority" json:"priority"`             // 优先级 (数字越小优先级越高)
+	CostPerToken float64           `yaml:"cost_per_token" json:"cost_per_token"` // 每Token成本 (用于成本优化策略)
+	Enabled      bool              `yaml:"enabled" json:"enabled"`               // 是否启用
+	Metadata     map[string]string `yaml:"metadata" json:"metadata"`             // 额外元数据
 }
 
 // RouterConfig 路由器配置
@@ -59,31 +59,31 @@ type RouterConfig struct {
 type ModelRouter interface {
 	// GetProvider 根据策略获取合适的 Provider
 	GetProvider(ctx context.Context, purpose string) (Provider, error)
-	
+
 	// GetProviderByName 根据名称获取特定 Provider
 	GetProviderByName(name string) (Provider, error)
-	
+
 	// GetAllProviders 获取所有可用的 Providers
 	GetAllProviders() map[string]Provider
-	
+
 	// RegisterProvider 注册一个新的 Provider
 	RegisterProvider(name string, provider Provider, config ModelConfig) error
-	
+
 	// Close 关闭所有 Providers
 	Close() error
 }
 
 // router 模型路由器的实现
 type router struct {
-	mu             sync.RWMutex
-	providers      map[string]Provider
-	configs        map[string]ModelConfig
-	routerConfig   *RouterConfig
-	defaultModel   string
-	strategy       RoutingStrategy
-	fallback       bool
-	maxRetries     int
-	priorityList   []string // 按优先级排序的模型列表
+	mu           sync.RWMutex
+	providers    map[string]Provider
+	configs      map[string]ModelConfig
+	routerConfig *RouterConfig
+	defaultModel string
+	strategy     RoutingStrategy
+	fallback     bool
+	maxRetries   int
+	priorityList []string // 按优先级排序的模型列表
 }
 
 // NewRouter 创建新的模型路由器

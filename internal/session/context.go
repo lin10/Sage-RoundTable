@@ -29,7 +29,7 @@ type ContextCompressor struct {
 // NewContextManager 创建一个新的 Markdown 上下文管理器
 func NewContextManager(sessionID string, initialQuery string, provider llm.Provider, threshold int) *ContextManager {
 	initialMD := fmt.Sprintf("# 决策会议: %s\n\n## 初始议题\n%s\n\n## 核心背景与已知事实\n", time.Now().Format("2006-01-02"), initialQuery)
-	
+
 	return &ContextManager{
 		sessionID:  sessionID,
 		contentMD:  initialMD,
@@ -49,7 +49,7 @@ func (cm *ContextManager) AppendFact(fact string) error {
 	newFact := fmt.Sprintf("- %s\n", fact)
 	cm.contentMD += newFact
 	cm.tokenCount = utils.EstimateTokens(cm.contentMD)
-	
+
 	logger.Log.Debug("Fact appended to Context", "fact", fact, "tokens", cm.tokenCount)
 	return cm.checkAndCompress()
 }
@@ -61,7 +61,7 @@ func (cm *ContextManager) AppendStatement(agentName, statement string) error {
 
 	cm.contentMD += fmt.Sprintf("\n### %s 发言:\n%s\n", agentName, statement)
 	cm.tokenCount = utils.EstimateTokens(cm.contentMD)
-	
+
 	logger.Log.Debug("Statement appended to Context", "agent", agentName, "tokens", cm.tokenCount)
 	return cm.checkAndCompress()
 }
@@ -80,12 +80,12 @@ func (cm *ContextManager) checkAndCompress() error {
 		return nil
 	}
 
-	logger.Log.Info("Context token threshold reached, triggering compression", 
-		"session", cm.sessionID, 
+	logger.Log.Info("Context token threshold reached, triggering compression",
+		"session", cm.sessionID,
 		"current_tokens", cm.tokenCount,
 		"threshold", cm.compressor.threshold,
 	)
-	
+
 	return cm.compressor.Compress(cm)
 }
 
@@ -114,13 +114,13 @@ func (cc *ContextCompressor) Compress(cm *ContextManager) error {
 		logger.Log.Error("Context compression failed", "error", err)
 		return fmt.Errorf("context compression failed: %w", err)
 	}
-	
+
 	// 覆写原上下文
 	cm.contentMD = "# 决策会议 (已摘要压缩)\n\n" + resp.Content + "\n\n## 后续讨论\n"
 	cm.tokenCount = utils.EstimateTokens(cm.contentMD)
-	
-	logger.Log.Info("Context compression successful", 
-		"session", cm.sessionID, 
+
+	logger.Log.Info("Context compression successful",
+		"session", cm.sessionID,
 		"new_tokens", cm.tokenCount,
 	)
 

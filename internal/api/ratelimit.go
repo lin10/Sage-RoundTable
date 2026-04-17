@@ -23,10 +23,10 @@ func NewRateLimiter(limit int, window time.Duration) *RateLimiter {
 		limit:    limit,
 		window:   window,
 	}
-	
+
 	// 启动定期清理任务
 	go rl.cleanupLoop()
-	
+
 	return rl
 }
 
@@ -35,7 +35,7 @@ func (rl *RateLimiter) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// 获取客户端 IP
 		ip := r.RemoteAddr
-		
+
 		if !rl.Allow(ip) {
 			WriteError(w, apperrors.NewAppError(
 				apperrors.ErrRateLimit,
@@ -44,7 +44,7 @@ func (rl *RateLimiter) Middleware(next http.Handler) http.Handler {
 			).WithHTTPStatus(http.StatusTooManyRequests))
 			return
 		}
-		
+
 		next.ServeHTTP(w, r)
 	})
 }
@@ -53,16 +53,16 @@ func (rl *RateLimiter) Middleware(next http.Handler) http.Handler {
 func (rl *RateLimiter) Allow(ip string) bool {
 	rl.mu.Lock()
 	defer rl.mu.Unlock()
-	
+
 	now := time.Now()
 	windowStart := now.Add(-rl.window)
-	
+
 	// 获取该 IP 的请求历史
 	timestamps, exists := rl.requests[ip]
 	if !exists {
 		timestamps = []time.Time{}
 	}
-	
+
 	// 过滤掉窗口外的请求
 	validTimestamps := []time.Time{}
 	for _, ts := range timestamps {
@@ -70,17 +70,17 @@ func (rl *RateLimiter) Allow(ip string) bool {
 			validTimestamps = append(validTimestamps, ts)
 		}
 	}
-	
+
 	// 检查是否超过限制
 	if len(validTimestamps) >= rl.limit {
 		rl.requests[ip] = validTimestamps
 		return false
 	}
-	
+
 	// 添加新请求
 	validTimestamps = append(validTimestamps, now)
 	rl.requests[ip] = validTimestamps
-	
+
 	return true
 }
 
@@ -88,7 +88,7 @@ func (rl *RateLimiter) Allow(ip string) bool {
 func (rl *RateLimiter) cleanupLoop() {
 	ticker := time.NewTicker(time.Minute)
 	defer ticker.Stop()
-	
+
 	for range ticker.C {
 		rl.cleanup()
 	}
@@ -98,7 +98,7 @@ func (rl *RateLimiter) cleanupLoop() {
 func (rl *RateLimiter) cleanup() {
 	rl.mu.Lock()
 	defer rl.mu.Unlock()
-	
+
 	now := time.Now()
 	for ip, timestamps := range rl.requests {
 		validTimestamps := []time.Time{}
@@ -107,7 +107,7 @@ func (rl *RateLimiter) cleanup() {
 				validTimestamps = append(validTimestamps, ts)
 			}
 		}
-		
+
 		if len(validTimestamps) == 0 {
 			delete(rl.requests, ip)
 		} else {

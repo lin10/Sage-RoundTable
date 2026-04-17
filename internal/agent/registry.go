@@ -43,9 +43,9 @@ func (r *Repository) LoadFromDir(dirPath string) error {
 		if err != nil {
 			return fmt.Errorf("failed to parse agent config from %s: %w", fullPath, err)
 		}
-		
+
 		profile.SystemPrompt = body
-		
+
 		if profile.ID == "" {
 			return fmt.Errorf("agent profile in %s is missing 'id'", fullPath)
 		}

@@ -25,12 +25,12 @@ func CORS(next http.Handler) http.Handler {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		
+
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)
 			return
 		}
-		
+
 		next.ServeHTTP(w, r)
 	})
 }
@@ -43,7 +43,7 @@ func Logger(next http.Handler) http.Handler {
 			"path", r.URL.Path,
 			"remote_addr", r.RemoteAddr,
 		)
-		
+
 		next.ServeHTTP(w, r)
 	})
 }
@@ -57,7 +57,7 @@ func Recovery(next http.Handler) http.Handler {
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			}
 		}()
-		
+
 		next.ServeHTTP(w, r)
 	})
 }
@@ -81,7 +81,7 @@ func WriteError(w http.ResponseWriter, err error) {
 		})
 		return
 	}
-	
+
 	// 未知错误
 	logger.Log.Error("Unhandled error", "error", err)
 	WriteJSON(w, http.StatusInternalServerError, map[string]interface{}{

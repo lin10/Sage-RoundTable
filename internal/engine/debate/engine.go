@@ -178,7 +178,7 @@ func (e *DebateEngine) executeCrossExamination(ctx context.Context, cm *session.
 // selectDebateParticipants 根据冲突报告中的名单，从当前会议的先贤池中捞出相关先贤实例
 func (e *DebateEngine) selectDebateParticipants(participantNames []string) []agent.Agent {
 	var selected []agent.Agent
-	
+
 	// 建立 map 加快查找
 	nameMap := make(map[string]bool)
 	for _, name := range participantNames {

@@ -4,7 +4,7 @@ import "context"
 
 // Message 表示对话消息
 type Message struct {
-	Role    string `json:"role"`    // system/user/assistant
+	Role    string `json:"role"` // system/user/assistant
 	Content string `json:"content"`
 	AgentID string `json:"agent_id,omitempty"` // 如果是智能体发言
 }

@@ -58,7 +58,7 @@ func LoadEnvFile(filePath string) error {
 // 如果文件不存在则返回 nil（不报错）
 func LoadDefaultEnvFile() error {
 	envPath := ".env"
-	
+
 	// 检查文件是否存在
 	if _, err := os.Stat(envPath); os.IsNotExist(err) {
 		return nil // 文件不存在，静默忽略

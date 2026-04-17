@@ -10,30 +10,30 @@ type ErrorCode string
 
 const (
 	// 客户端错误
-	ErrInvalidInput    ErrorCode = "INVALID_INPUT"
+	ErrInvalidInput     ErrorCode = "INVALID_INPUT"
 	ErrValidationFailed ErrorCode = "VALIDATION_FAILED"
-	ErrNotFound        ErrorCode = "NOT_FOUND"
-	ErrUnauthorized    ErrorCode = "UNAUTHORIZED"
-	ErrForbidden       ErrorCode = "FORBIDDEN"
-	
+	ErrNotFound         ErrorCode = "NOT_FOUND"
+	ErrUnauthorized     ErrorCode = "UNAUTHORIZED"
+	ErrForbidden        ErrorCode = "FORBIDDEN"
+
 	// 业务逻辑错误
 	ErrSessionNotFound ErrorCode = "SESSION_NOT_FOUND"
 	ErrAgentNotFound   ErrorCode = "AGENT_NOT_FOUND"
 	ErrSkillNotFound   ErrorCode = "SKILL_NOT_FOUND"
 	ErrFlowNotFound    ErrorCode = "FLOW_NOT_FOUND"
-	
+
 	// LLM 相关错误
-	ErrLLMAPIError     ErrorCode = "LLM_API_ERROR"
-	ErrLLMTimeout      ErrorCode = "LLM_TIMEOUT"
-	ErrTokenLimit      ErrorCode = "TOKEN_LIMIT_EXCEEDED"
-	
+	ErrLLMAPIError ErrorCode = "LLM_API_ERROR"
+	ErrLLMTimeout  ErrorCode = "LLM_TIMEOUT"
+	ErrTokenLimit  ErrorCode = "TOKEN_LIMIT_EXCEEDED"
+
 	// 数据库错误
-	ErrDatabaseError   ErrorCode = "DATABASE_ERROR"
-	ErrQueryFailed     ErrorCode = "QUERY_FAILED"
-	
+	ErrDatabaseError ErrorCode = "DATABASE_ERROR"
+	ErrQueryFailed   ErrorCode = "QUERY_FAILED"
+
 	// 系统错误
-	ErrInternalError   ErrorCode = "INTERNAL_ERROR"
-	ErrRateLimit       ErrorCode = "RATE_LIMIT_EXCEEDED"
+	ErrInternalError      ErrorCode = "INTERNAL_ERROR"
+	ErrRateLimit          ErrorCode = "RATE_LIMIT_EXCEEDED"
 	ErrServiceUnavailable ErrorCode = "SERVICE_UNAVAILABLE"
 )
 
@@ -112,7 +112,7 @@ func WrapError(code ErrorCode, err error, message string) *AppError {
 	if err == nil {
 		return nil
 	}
-	
+
 	details := err.Error()
 	return NewAppError(code, message, details)
 }

@@ -53,18 +53,18 @@ func expandEnvVars(model *llm.ModelConfig) error {
 func expandString(s string) string {
 	// 匹配 ${VAR_NAME} 格式
 	re := regexp.MustCompile(`\$\{([^}]+)\}`)
-	
+
 	return re.ReplaceAllStringFunc(s, func(match string) string {
 		// 提取变量名
 		varName := match[2 : len(match)-1] // 去掉 ${ 和 }
-		
+
 		// 获取环境变量值
 		envValue := os.Getenv(varName)
 		if envValue == "" {
 			// 如果环境变量未设置，返回原始字符串（稍后可能会报错）
 			return match
 		}
-		
+
 		return envValue
 	})
 }
@@ -154,7 +154,7 @@ func GetEnabledModels(config *llm.RouterConfig) []llm.ModelConfig {
 func PrintModelSummary(config *llm.RouterConfig) {
 	fmt.Println("\n📊 已配置的模型:")
 	fmt.Println(strings.Repeat("-", 80))
-	
+
 	enabledCount := 0
 	for _, model := range config.Models {
 		status := "❌ 禁用"
@@ -163,14 +163,14 @@ func PrintModelSummary(config *llm.RouterConfig) {
 			enabledCount++
 		}
 
-		fmt.Printf("%-20s | %-12s | %-20s | %s\n", 
-			model.Name, 
-			model.Type, 
+		fmt.Printf("%-20s | %-12s | %-20s | %s\n",
+			model.Name,
+			model.Type,
 			model.Model,
 			status,
 		)
 	}
-	
+
 	fmt.Println(strings.Repeat("-", 80))
 	fmt.Printf("总计: %d 个模型, 已启用: %d 个\n\n", len(config.Models), enabledCount)
 }

@@ -196,9 +196,9 @@ func TestDisabledModels(t *testing.T) {
 // TestOpenAICompatibleProvider 测试OpenAI兼容的Provider创建
 func TestOpenAICompatibleProvider(t *testing.T) {
 	tests := []struct {
-		name     string
+		name      string
 		modelType ModelType
-		baseURL  string
+		baseURL   string
 	}{
 		{"OpenAI", ModelTypeOpenAI, ""},
 		{"Qwen", ModelTypeQwen, "https://dashscope.aliyuncs.com/compatible-mode/v1"},

@@ -21,13 +21,13 @@ type WenxinConfig struct {
 
 // WenxinProvider 百度文心一言 Provider
 type WenxinProvider struct {
-	name      string
-	apiKey    string
-	secretKey string
-	model     string
-	accessToken string
+	name          string
+	apiKey        string
+	secretKey     string
+	model         string
+	accessToken   string
 	tokenExpireAt time.Time
-	httpClient *http.Client
+	httpClient    *http.Client
 }
 
 // wenxinTokenResponse 获取 Access Token 的响应
@@ -45,23 +45,23 @@ type wenxinMessage struct {
 
 // wenxinRequest 文心一言请求格式
 type wenxinRequest struct {
-	Messages    []wenxinMessage `json:"messages"`
-	Temperature float64         `json:"temperature,omitempty"`
-	TopP        float64         `json:"top_p,omitempty"`
-	PenaltyScore float64        `json:"penalty_score,omitempty"`
-	Stream      bool            `json:"stream,omitempty"`
+	Messages     []wenxinMessage `json:"messages"`
+	Temperature  float64         `json:"temperature,omitempty"`
+	TopP         float64         `json:"top_p,omitempty"`
+	PenaltyScore float64         `json:"penalty_score,omitempty"`
+	Stream       bool            `json:"stream,omitempty"`
 }
 
 // wenxinResponse 文心一言响应格式
 type wenxinResponse struct {
-	ID      string          `json:"id"`
-	Object  string          `json:"object"`
-	Created int64           `json:"created"`
-	Result  string          `json:"result"`
-	IsEnd   bool            `json:"is_end"`
-	Usage   wenxinTokenUsage `json:"usage"`
-	ErrorCode int           `json:"error_code,omitempty"`
-	ErrorMsg string         `json:"error_msg,omitempty"`
+	ID        string           `json:"id"`
+	Object    string           `json:"object"`
+	Created   int64            `json:"created"`
+	Result    string           `json:"result"`
+	IsEnd     bool             `json:"is_end"`
+	Usage     wenxinTokenUsage `json:"usage"`
+	ErrorCode int              `json:"error_code,omitempty"`
+	ErrorMsg  string           `json:"error_msg,omitempty"`
 }
 
 // wenxinTokenUsage Token使用统计

@@ -18,23 +18,23 @@ func setupTestRouter() (*Router, *session.SQLiteStore) {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	handler := NewHandler(store)
 	router := NewRouter(handler)
-	
+
 	return router, store
 }
 
 func TestHealthEndpoint(t *testing.T) {
 	router, _ := setupTestRouter()
-	
+
 	req := httptest.NewRequest("GET", "/health", nil)
 	w := httptest.NewRecorder()
-	
+
 	router.ServeHTTP(w, req)
-	
+
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response map[string]string
 	json.Unmarshal(w.Body.Bytes(), &response)
 	assert.Equal(t, "healthy", response["status"])
@@ -43,21 +43,21 @@ func TestHealthEndpoint(t *testing.T) {
 func TestCreateSession(t *testing.T) {
 	router, store := setupTestRouter()
 	defer store.Close()
-	
+
 	payload := CreateSessionRequest{
 		InitialQuery: "我应该辞职创业吗？",
 		UserID:       "test_user",
 	}
 	body, _ := json.Marshal(payload)
-	
+
 	req := httptest.NewRequest("POST", "/api/v1/sessions", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
-	
+
 	router.ServeHTTP(w, req)
-	
+
 	assert.Equal(t, http.StatusCreated, w.Code)
-	
+
 	var response CreateSessionResponse
 	json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NotEmpty(t, response.SessionID)
@@ -67,7 +67,7 @@ func TestCreateSession(t *testing.T) {
 func TestGetSession(t *testing.T) {
 	router, store := setupTestRouter()
 	defer store.Close()
-	
+
 	// 先创建会话
 	sess := &session.Session{
 		ID:           "test_session_1",
@@ -76,15 +76,15 @@ func TestGetSession(t *testing.T) {
 		InitialQuery: "测试问题",
 	}
 	store.CreateSession(sess)
-	
+
 	// 获取会话
 	req := httptest.NewRequest("GET", "/api/v1/sessions/test_session_1", nil)
 	w := httptest.NewRecorder()
-	
+
 	router.ServeHTTP(w, req)
-	
+
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response session.Session
 	json.Unmarshal(w.Body.Bytes(), &response)
 	assert.Equal(t, "test_session_1", response.ID)
@@ -94,7 +94,7 @@ func TestGetSession(t *testing.T) {
 func TestListSessions(t *testing.T) {
 	router, store := setupTestRouter()
 	defer store.Close()
-	
+
 	// 创建多个会话
 	for i := 0; i < 3; i++ {
 		sess := &session.Session{
@@ -105,15 +105,15 @@ func TestListSessions(t *testing.T) {
 		}
 		store.CreateSession(sess)
 	}
-	
+
 	// 列出会话
 	req := httptest.NewRequest("GET", "/api/v1/sessions?user_id=test_user", nil)
 	w := httptest.NewRecorder()
-	
+
 	router.ServeHTTP(w, req)
-	
+
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response map[string]interface{}
 	json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NotNil(t, response["sessions"])
@@ -122,7 +122,7 @@ func TestListSessions(t *testing.T) {
 func TestDeleteSession(t *testing.T) {
 	router, store := setupTestRouter()
 	defer store.Close()
-	
+
 	// 先创建会话
 	sess := &session.Session{
 		ID:           "test_session_delete",
@@ -131,15 +131,15 @@ func TestDeleteSession(t *testing.T) {
 		InitialQuery: "测试问题",
 	}
 	store.CreateSession(sess)
-	
+
 	// 删除会话
 	req := httptest.NewRequest("DELETE", "/api/v1/sessions/test_session_delete", nil)
 	w := httptest.NewRecorder()
-	
+
 	router.ServeHTTP(w, req)
-	
+
 	assert.Equal(t, http.StatusNoContent, w.Code)
-	
+
 	// 验证已删除
 	_, err := store.GetSession("test_session_delete")
 	assert.Error(t, err)
