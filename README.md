@@ -46,65 +46,239 @@
 - **日志**：`slog`（标准库）
 - **前端**：Next.js（React）或 Streamlit
 
-## 🏗️ 快速开始（本地运行）
+## 🏗️ 快速开始
 
 ### 前置条件
 - Go 1.23+
-- 可访问的 LLM API（推荐阿里云通义千问、智谱AI等国内服务）或本地运行的 Ollama
+- （可选）LLM API Key 或本地 Ollama
 
-### 步骤
+### 启动服务
+
+项目提供两个独立的启动脚本：
+
+#### 1️⃣ 后端 API 服务器
+
 ```bash
-# 1. 克隆仓库
-git clone https://github.com/yourname/pantheon-council.git
-cd pantheon-council
+# Windows
+.\start.bat
 
-# 2. 配置模型路由（支持国内外多个大模型）
+# Linux/Mac
+chmod +x start.sh && ./start.sh
+```
+
+**功能：**
+- 📡 REST API 服务
+- 🗄️ 内存数据存储
+- 🌐 监听端口: `8080`
+- 🔗 健康检查: `http://localhost:8080/health`
+
+#### 2️⃣ 前端 Web 服务器
+
+```bash
+# Windows
+.\start-web.bat
+
+# Linux/Mac
+chmod +x start-web.sh && ./start-web.sh
+```
+
+**功能：**
+- 🎨 测试界面
+- 📱 响应式设计
+- 🌐 监听端口: `3000`
+- 🔗 访问地址: `http://localhost:3000/demo.html`
+
+### 使用流程
+
+1. **打开两个终端窗口**
+2. **终端 1** - 运行 `start.bat` 启动后端
+3. **终端 2** - 运行 `start-web.bat` 启动前端
+4. **浏览器访问** `http://localhost:3000/demo.html`
+
+### 配置模型（可选）
+
+如果需要连接真实的 LLM，请配置模型：
+
+```bash
+# 复制配置文件
 cp config/models.example.yaml config/models.yaml
-# 编辑 config/models.yaml，启用你需要的模型
 
-# 3. 设置 API Keys（任选其一）
-# 方式一：使用 .env 文件
-cp .env.example .env
-# 编辑 .env 填入你的 API Keys
-
-# 方式二：直接设置环境变量
-export QWEN_API_KEY="sk-your-key"
-
-# 4. 运行 CLI 测试版
-go run cmd/cli/main.go
+# 编辑配置文件，填入你的 API Keys
+# 支持：通义千问、智谱AI、文心一言、DeepSeek、Ollama 等
 ```
 
-### 💡 推荐配置（国内用户）
+详细配置说明见 [多模型路由系统](docs/MODEL_ROUTING.md)
 
-```yaml
-# config/models.yaml
-default_model: "qwen-max"
-strategy: "priority"
+---
 
-models:
-  # 主力模型 - 阿里云通义千问
-  - name: "qwen-max"
-    type: "qwen"
-    model: "qwen-max"
-    api_key: "${QWEN_API_KEY}"
-    enabled: true
-    priority: 1
-    
-  # 备用模型 - 智谱AI
-  - name: "glm-4"
-    type: "chatglm"
-    model: "glm-4"
-    api_key: "${ZHIPU_API_KEY}"
-    enabled: true
-    priority: 2
-    
-  # 本地保底 - Ollama (完全免费)
-  - name: "ollama-llama3"
-    type: "ollama"
-    model: "llama3"
-    base_url: "http://localhost:11434/v1"
-    enabled: true
-    priority: 3
+## 📡 API 接口使用
+
+服务器启动后，可以通过 REST API 进行交互。
+
+### 快速测试
+
+#### 1. 健康检查
+```bash
+curl http://localhost:8080/health
 ```
 
-更多配置详情请查看 [多模型路由系统使用指南](docs/MODEL_ROUTING.md)
+#### 2. 创建会话
+```bash
+curl -X POST http://localhost:8080/api/v1/sessions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "initial_query": "是否应该投资人工智能领域？",
+    "user_id": "test_user",
+    "context_info": {
+      "budget": "100万",
+      "timeline": "1年"
+    }
+  }'
+```
+
+#### 3. 生成追问问题
+```bash
+curl -X POST http://localhost:8080/api/v1/sessions/{session_id}/questions
+```
+
+#### 4. 提交答案
+```bash
+curl -X POST http://localhost:8080/api/v1/sessions/{session_id}/answers \
+  -H "Content-Type: application/json" \
+  -d '{
+    "answers": {
+      "question_1": "预算约100万",
+      "question_2": "期望1年内见效"
+    }
+  }'
+```
+
+#### 5. 开始辩论
+```bash
+curl -X POST http://localhost:8080/api/v1/sessions/{session_id}/debate/start
+```
+
+#### 6. 生成决议书
+```bash
+curl -X POST http://localhost:8080/api/v1/sessions/{session_id}/resolution/generate
+```
+
+### Postman 使用
+
+可以导入以下 Collection 进行测试（将 `{session_id}` 替换为实际返回的 ID）：
+
+| 方法 | 端点 | 说明 |
+|------|------|------|
+| POST | `/api/v1/sessions` | 创建会话 |
+| GET | `/api/v1/sessions/{id}` | 获取会话详情 |
+| POST | `/api/v1/sessions/{id}/questions` | 生成问题 |
+| POST | `/api/v1/sessions/{id}/answers` | 提交答案 |
+| POST | `/api/v1/sessions/{id}/debate/start` | 开始辩论 |
+| GET | `/api/v1/sessions/{id}/debate/stream` | 流式获取辩论（SSE） |
+| POST | `/api/v1/sessions/{id}/resolution/generate` | 生成决议 |
+| GET | `/api/v1/sessions/{id}/resolution` | 获取决议书 |
+| GET | `/api/v1/config/agents` | 获取智者列表 |
+
+完整的 API 文档请参考项目中的接口定义。
+
+---
+
+## 📚 项目结构
+
+```
+Sage-RoundTable/
+├── cmd/
+│   ├── cli/          # CLI 命令行工具
+│   └── server/       # HTTP 服务器入口
+├── internal/
+│   ├── agent/        # 智能体管理
+│   ├── api/          # API 路由和处理器
+│   ├── config/       # 配置加载
+│   ├── engine/       # 核心引擎（辩论、提问、决议）
+│   ├── llm/          # LLM 模型路由
+│   ├── session/      # 会话管理（内存/SQLite）
+│   └── skill/        # 技能系统
+├── pkg/
+│   ├── cache/        # 缓存实现
+│   ├── errors/       # 错误处理
+│   ├── logger/       # 日志系统
+│   └── utils/        # 工具函数
+├── config/           # 配置文件
+│   ├── agents/       # 智能体配置
+│   └── skills/       # 技能配置
+└── docs/             # 项目文档
+```
+
+---
+
+## 🛠️ 开发说明
+
+### 技术栈
+
+- **后端框架**：原生 Go + chi 路由器
+- **数据存储**：内存存储（MVP）/ SQLite（完整版）
+- **LLM 集成**：支持多模型路由（OpenAI、通义千问、智谱AI、文心一言、DeepSeek、Ollama）
+- **并发模型**：Go goroutines + channels
+- **API 风格**：RESTful + Server-Sent Events (SSE)
+
+### 添加新智能体
+
+1. 在 `config/agents/` 目录下创建新的 `.md` 文件
+2. 定义智能体的角色、思维模型和 Prompt 模板
+3. 重启服务器即可使用
+
+示例：`config/agents/new_sage.md`
+```markdown
+# 新智能体名称
+
+**角色**: 角色描述
+**专长**: 专业领域
+
+## 思维模型
+
+你的核心思考方式...
+
+## 对话风格
+
+你的语言特点...
+```
+
+---
+
+## ❓ 常见问题
+
+### Q: 为什么启动时报错 "CGO_ENABLED=0"？
+A: MVP 版本已改用内存存储，不需要 CGO。直接运行 `go run cmd/server/main.go` 即可。
+
+### Q: 如何切换到 SQLite 存储？
+A: 安装 GCC 后，修改 `cmd/server/main.go`，将 `session.NewMemoryStore()` 改为 `session.NewSQLiteStore(dbPath)`。
+
+### Q: 支持哪些 LLM 模型？
+A: 支持 OpenAI GPT、阿里云通义千问、智谱AI GLM、百度文心一言、DeepSeek、ChatGLM 以及本地 Ollama 模型。
+
+### Q: 数据会丢失吗？
+A: MVP 版本使用内存存储，重启服务器后数据会丢失。如需持久化，请使用 SQLite 版本。
+
+---
+
+## 🤝 贡献指南
+
+欢迎提交 Issue 和 Pull Request！
+
+1. Fork 本仓库
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启 Pull Request
+
+---
+
+## 📄 许可证
+
+本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
+
+---
+
+## 🌟 Star History
+
+如果这个项目对你有帮助，请给我们一个 ⭐️！

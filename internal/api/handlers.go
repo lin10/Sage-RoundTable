@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 	"github.com/sage-roundtable/core/internal/session"
 	"github.com/sage-roundtable/core/pkg/cache"
 	apperrors "github.com/sage-roundtable/core/pkg/errors"
@@ -70,8 +71,15 @@ func (h *Handler) CreateSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 验证必填字段
 	if req.InitialQuery == "" {
 		WriteError(w, apperrors.NewAppError(apperrors.ErrValidationFailed, "initial_query is required", ""))
+		return
+	}
+
+	// 验证输入长度
+	if len(req.InitialQuery) > 1000 {
+		WriteError(w, apperrors.NewAppError(apperrors.ErrValidationFailed, "initial_query too long (max 1000 chars)", ""))
 		return
 	}
 
@@ -79,8 +87,14 @@ func (h *Handler) CreateSession(w http.ResponseWriter, r *http.Request) {
 		req.UserID = "anonymous"
 	}
 
-	// TODO: 生成会话 ID，初始化会话对象并存储
-	sessionID := "sess_" + req.InitialQuery[:8] // 临时实现
+	// 验证 user_id 长度
+	if len(req.UserID) > 100 {
+		WriteError(w, apperrors.NewAppError(apperrors.ErrValidationFailed, "user_id too long (max 100 chars)", ""))
+		return
+	}
+
+	// 生成唯一的会话 ID
+	sessionID := "sess_" + uuid.New().String()[:12]
 
 	sess := &session.Session{
 		ID:           sessionID,
