@@ -4,6 +4,10 @@
 [![Go Version](https://img.shields.io/badge/Go-1.23+-00ADD8?logo=go)](https://go.dev/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
+> **人类从历史中吸取的最大教训是没有从历史中吸取教训。**
+
+> **The only thing we learn from history is that we learn nothing from history.**
+
 > 让人类历史上最杰出的 11 位智者，为你的每一个重大决策召开一场“圆桌会议”。
 
 ## ✨ 项目简介
